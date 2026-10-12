@@ -2,14 +2,16 @@
 
 - name: deploy jupiter website
   hosts: all
-  become:  yes
+  become:  true
   become_user: root
 
   tasks:
     - name: Upgrade all packages
       ansible.builtin.dnf:
-      name: "*"
-      state: latest
+        name: "*"
+        state: latest
+        update_cache: true
+        use_backend: dnf4
 
     - name: install apache server
       yum:
@@ -17,24 +19,24 @@
         state: latest
 
     - name: change directory to the html directory
-      shell: /var/www/html
+      shell: /var/www/html/
 
     - name: download web files from github
       get_url:
         url: https://github.com/azeezsalu/jupiter/archive/refs/heads/main.zip
-        dest: /var/www/html/
+        dest: /jupiter-main.zip
 
     - name: unzip the zip folder
       ansible.builtin.unarchive:
         src: /var/www/html/jupiter-main.zip
         dest: /var/www/html
-        remote_src: no
+        remote_src: true
 
     - name: copy webfiles from the jupiter-main directory to the html directory
       copy: 
         src: /var/www/html/jupiter-main/
         dest: /var/www/html
-        remote_src: no
+        remote_src: true
 
     - name: remove the jupiter-main directory
       file: 
